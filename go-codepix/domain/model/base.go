@@ -11,7 +11,7 @@ func init() {
 }
 
 type Base struct {
-	Id        string    `json:"id" valid:"uuid"`
+	Id        string    `json:"id" valid:"uuid" gorm:"type:uuid;primary_key"`
 	CreatedAt time.Time `json:"created_at" valid:"-"`
 	UpdatedAt time.Time `json:"updated_at" valid:"-"`
 }

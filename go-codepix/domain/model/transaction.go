@@ -19,7 +19,7 @@ type TransactionStatus string
 
 const (
 	TRANSACTION_STATUS_PENDING   TransactionStatus = "pending"
-	TRANSACTION_STATUS_ERROR     TransactionStatus = "error"
+	TRANSACTION_STATUS_CANCELLED TransactionStatus = "cancelled"
 	TRANSACTION_STATUS_CONFIRMED TransactionStatus = "comfirmed"
 	TRANSACTION_STATUS_COMPLETED TransactionStatus = "completed"
 )
@@ -28,7 +28,7 @@ func (tStatus TransactionStatus) isValid() bool {
 	switch tStatus {
 	case TRANSACTION_STATUS_PENDING,
 		TRANSACTION_STATUS_COMPLETED,
-		TRANSACTION_STATUS_ERROR,
+		TRANSACTION_STATUS_CANCELLED,
 		TRANSACTION_STATUS_CONFIRMED:
 		return true
 	}
@@ -98,10 +98,10 @@ func NewTransaction(accountTo *Account, amount float64, pixKeyFrom *PixKey, desc
 
 func (transaction *Transaction) Cancel(description string) error {
 	if transaction.Status != TRANSACTION_STATUS_PENDING && transaction.Status != TRANSACTION_STATUS_CONFIRMED {
-		return fmt.Errorf("invalid transaction status state change: %v -> %v", transaction.Status, TRANSACTION_STATUS_ERROR)
+		return fmt.Errorf("invalid transaction status state change: %v -> %v", transaction.Status, TRANSACTION_STATUS_CANCELLED)
 	}
 
-	transaction.Status = TRANSACTION_STATUS_ERROR
+	transaction.Status = TRANSACTION_STATUS_CANCELLED
 	transaction.UpdatedAt = time.Now()
 	transaction.CancelDescription = description
 	return transaction.isValid()

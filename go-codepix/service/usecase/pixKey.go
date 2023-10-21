@@ -10,6 +10,12 @@ type PixKeyUseCase struct {
 	repository model.IPixKeyRepository
 }
 
+func NewPixKeyUseCase(repository model.IPixKeyRepository) PixKeyUseCase {
+	return PixKeyUseCase{
+		repository: repository,
+	}
+}
+
 func (p *PixKeyUseCase) RegisterKey(key string, kind string, accountId string) (*model.PixKey, error) {
 	errMsgTemplate := "error to register pix key in repository. Details: '%s'"
 

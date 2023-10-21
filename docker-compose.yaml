@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  app:
+    build: ./go-codepix
+    container_name: go-codepix
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./go-codepix:/go/src/
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+

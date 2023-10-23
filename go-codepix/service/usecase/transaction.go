@@ -11,6 +11,13 @@ type TransactionUseCase struct {
 	pixRepository         model.IPixKeyRepository
 }
 
+func NewTransactionUseCase(transactionRepository model.ITransactionRepository, pixRepository model.IPixKeyRepository) TransactionUseCase {
+	return TransactionUseCase{
+		transactionRepository: transactionRepository,
+		pixRepository:         pixRepository,
+	}
+}
+
 func (t *TransactionUseCase) Register(accountId string, amount float64, pixKeyFrom, pixKeyFromKind, description string) (*model.Transaction, error) {
 	errMsgTemplate := "error to register transaction in repository. Details: '%s'"
 

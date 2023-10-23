@@ -6,9 +6,8 @@ import (
 	"net"
 
 	"github.com/jinzhu/gorm"
-	"github.com/moura1001/codepix/infra/repository"
+	"github.com/moura1001/codepix/service/factory"
 	"github.com/moura1001/codepix/service/grpc/pb"
-	"github.com/moura1001/codepix/service/usecase"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -18,8 +17,7 @@ func StartGrpcServer(database *gorm.DB, port int) {
 	reflection.Register(grpcServer)
 
 	// pix key grpc sevice
-	pixKeyRepository := repository.PixKeyRepositoryDb{Db: database}
-	pixKeyUseCase := usecase.NewPixKeyUseCase(pixKeyRepository)
+	pixKeyUseCase := factory.NewPixKeyUseCase(database)
 	pixKeyGrpcService := NewPixKeyGrpcService(pixKeyUseCase)
 	pb.RegisterPixServiceServer(grpcServer, pixKeyGrpcService)
 
@@ -29,7 +27,7 @@ func StartGrpcServer(database *gorm.DB, port int) {
 		log.Fatalf("cannot listen grpc server on port %d. Details: '%s'", port, err)
 	}
 
-	log.Printf("gRPC server has been started on port %d", port)
+	log.Printf("gRPC server has been started on port %d\n", port)
 	err = grpcServer.Serve(listener)
 	if err != nil {
 		log.Fatalf("cannot start grpc server. Details: '%s'", err)

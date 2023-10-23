@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/moura1001/codepix/domain/model"
+	"github.com/moura1001/codepix/service/factory"
 	_ "gorm.io/driver/sqlite"
 )
 
@@ -51,5 +52,51 @@ func GetDBConnection() *gorm.DB {
 		db.AutoMigrate(&model.Bank{}, &model.Account{}, &model.PixKey{}, &model.Transaction{})
 	}
 
+	if envMode == "dev" || envMode == "test" {
+		err := dumbEnvInitSetup(db)
+		if err != nil {
+			log.Fatalf("error to setup database. Details: '%s'", err)
+		}
+	}
+
 	return db
+}
+
+func dumbEnvInitSetup(database *gorm.DB) error {
+	pixKeyRepository := factory.NewPixKeyRepositoryDb(database)
+
+	code := "001"
+	name := "Caixa"
+	bank, _ := model.NewBank(code, name)
+
+	sourceAccountNumber := "somenumber1"
+	sourceOwnerName := "Moura1"
+	sourceAccount, _ := model.NewAccount(sourceOwnerName, sourceAccountNumber, bank)
+
+	destinationAccountNumber := "somenumber2"
+	destinationOwnerName := "Moura2"
+	destinationAccount, _ := model.NewAccount(destinationAccountNumber, destinationOwnerName, bank)
+
+	kind := "email"
+	key := "email@email.com"
+	pixKey, _ := model.NewPixKey(kind, key, sourceAccount)
+
+	err := pixKeyRepository.AddBank(bank)
+	if err != nil {
+		return err
+	}
+	err = pixKeyRepository.AddAccount(sourceAccount)
+	if err != nil {
+		return err
+	}
+	err = pixKeyRepository.AddAccount(destinationAccount)
+	if err != nil {
+		return err
+	}
+	_, err = pixKeyRepository.RegisterKey(pixKey)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

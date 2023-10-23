@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  db-test:
+    image: postgres:13-alpine
+    container_name: db-test
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: nest
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"

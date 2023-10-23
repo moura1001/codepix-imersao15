@@ -1,0 +1,15 @@
+GET http://localhost:3000/bank-accounts
+
+@bank_account_id = 815ab84b-1ac0-47f5-8765-9f028e9d04e9
+
+###
+GET http://localhost:3000/bank-accounts/{{bank_account_id}}
+
+###
+POST http://localhost:3000/bank-accounts
+Content-Type: application/json
+
+{
+    "account_number": "7777-7",
+    "owner_name": "Moura"
+}

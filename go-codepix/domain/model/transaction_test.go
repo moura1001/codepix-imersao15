@@ -3,6 +3,7 @@ package model_test
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/moura1001/codepix/domain/model"
 	"github.com/stretchr/testify/require"
 )
@@ -12,13 +13,13 @@ func TestModel_NewTransaction(t *testing.T) {
 	name := "Caixa"
 	bank, _ := model.NewBank(code, name)
 
-	sourceAccountNumber := "somenumber"
+	sourceAccountNumber := uuid.NewString()
 	sourceOwnerName := "Moura"
 	sourceAccount, _ := model.NewAccount(sourceOwnerName, sourceAccountNumber, bank)
 
-	destinationAccountNumber := "somenumber"
+	destinationAccountNumber := uuid.NewString()
 	destinationOwnerName := "Moura"
-	destinationAccount, _ := model.NewAccount(destinationAccountNumber, destinationOwnerName, bank)
+	destinationAccount, _ := model.NewAccount(destinationOwnerName, destinationAccountNumber, bank)
 
 	kind := "email"
 	key := "email@email.com"
@@ -50,13 +51,13 @@ func TestModel_TransactionStatusChange(t *testing.T) {
 	name := "Caixa"
 	bank, _ := model.NewBank(code, name)
 
-	sourceAccountNumber := "somenumber"
+	sourceAccountNumber := uuid.NewString()
 	sourceOwnerName := "Moura"
 	sourceAccount, _ := model.NewAccount(sourceOwnerName, sourceAccountNumber, bank)
 
-	destinationAccountNumber := "somenumber"
+	destinationAccountNumber := uuid.NewString()
 	destinationOwnerName := "Moura"
-	destinationAccount, _ := model.NewAccount(destinationAccountNumber, destinationOwnerName, bank)
+	destinationAccount, _ := model.NewAccount(destinationOwnerName, destinationAccountNumber, bank)
 
 	kind := "email"
 	key := "email@email.com"

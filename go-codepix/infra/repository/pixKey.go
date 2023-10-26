@@ -1,10 +1,11 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/jinzhu/gorm"
 	"github.com/moura1001/codepix/domain/model"
+	"gorm.io/gorm"
 )
 
 type PixKeyRepositoryDb struct {
@@ -20,7 +21,7 @@ func (r PixKeyRepositoryDb) AddBank(bank *model.Bank) error {
 }
 
 func (r PixKeyRepositoryDb) AddAccount(account *model.Account) error {
-	err := r.Db.Create(account).Error
+	err := r.Db.Create(&account).Error
 	if err != nil {
 		return fmt.Errorf("error to insert account on database. Details: '%s'", err)
 	}
@@ -35,38 +36,47 @@ func (r PixKeyRepositoryDb) RegisterKey(pixKey *model.PixKey) (*model.PixKey, er
 	return pixKey, nil
 }
 
-func (r PixKeyRepositoryDb) FindKeyByKind(key string, kind string) (*model.PixKey, error) {
-	var pixKey model.PixKey
+func (r PixKeyRepositoryDb) FindKeyByKind(key string, kind string) (pixKey *model.PixKey, isErrRecordNotFound bool, err error) {
+	var pix model.PixKey
 
-	r.Db.Preload("Account.Bank").Find(&pixKey, "kind=? and key=?", kind, key)
+	err = r.Db.Preload("Account.Bank").First(&pix, "kind=? and key=?", kind, key).Error
+	pixKey = &pix
+	isErrRecordNotFound = errors.Is(err, gorm.ErrRecordNotFound)
 
-	if pixKey.Id == "" {
-		return nil, fmt.Errorf("no pix key was found for input params kind=%s and key=%s", kind, key)
+	if pix.Id == "" {
+		pixKey = nil
+		err = fmt.Errorf("no pix key was found for input params kind=%s and key=%s", kind, key)
 	}
 
-	return &pixKey, nil
+	return
 }
 
-func (r PixKeyRepositoryDb) FindAccountById(id string) (*model.Account, error) {
-	var account model.Account
+func (r PixKeyRepositoryDb) FindAccountByNumber(bankCode string, number string) (account *model.Account, isErrRecordNotFound bool, err error) {
+	var acc model.Account
 
-	r.Db.Preload("Bank").Find(&account, "id=?", id)
+	err = r.Db.Preload("Bank").First(&acc, "bank_code=? and number=?", bankCode, number).Error
+	account = &acc
+	isErrRecordNotFound = errors.Is(err, gorm.ErrRecordNotFound)
 
-	if account.Id == "" {
-		return nil, fmt.Errorf("no account was found for id=%s", id)
+	if acc.Id == "" {
+		account = nil
+		err = fmt.Errorf("no account was found for input params bank_code=%s and number=%s", bankCode, number)
 	}
 
-	return &account, nil
+	return
 }
 
-func (r PixKeyRepositoryDb) FindBankById(id string) (*model.Bank, error) {
-	var bank model.Bank
+func (r PixKeyRepositoryDb) FindBankByCode(code string) (bank *model.Bank, isErrRecordNotFound bool, err error) {
+	var ban model.Bank
 
-	r.Db.Find(&bank, "id=?", id)
+	err = r.Db.First(&ban, "code=?", code).Error
+	bank = &ban
+	isErrRecordNotFound = errors.Is(err, gorm.ErrRecordNotFound)
 
-	if bank.Id == "" {
-		return nil, fmt.Errorf("no bank was found for id=%s", id)
+	if ban.Id == "" {
+		bank = nil
+		err = fmt.Errorf("no bank was found for code=%s", code)
 	}
 
-	return &bank, nil
+	return
 }

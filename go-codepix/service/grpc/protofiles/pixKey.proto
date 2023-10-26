@@ -7,7 +7,8 @@ option go_package = "./protofiles;pb";
 message PixKeyRegistration {
     string kind = 1;
     string key = 2;
-    string accountId = 3;
+    string accountNumber = 3;
+    string bankCode = 4;
 }
 
 message PixKey {
@@ -15,13 +16,17 @@ message PixKey {
     string key = 2;
 }
 
+message Bank {
+    string bankCode = 1;
+    string bankName = 2;
+}
+
 message Account {
-    string accountId = 1;
-    string accountNumber = 2;
-    string bankId = 3;
-    string bankName = 4;
-    string ownerName = 5;
-    string createdAt = 6;
+    string accountNumber = 1;
+    string bankCode = 2;
+    string bankName = 3;
+    string ownerName = 4;
+    string createdAt = 5;
 }
 
 message PixKeyInfo {
@@ -32,13 +37,15 @@ message PixKeyInfo {
     string createdAt = 5;
 }
 
-message PixKeyCreatedResult {
+message RegisterCreatedResult {
     string id = 1;
     string status = 2;
     string error = 3;
 }
 
 service PixService {
-    rpc RegisterPixKey (PixKeyRegistration) returns (PixKeyCreatedResult) {};
+    rpc RegisterPixKey (PixKeyRegistration) returns (RegisterCreatedResult) {};
     rpc Find(PixKey) returns (PixKeyInfo) {};
+    rpc RegisterAccount (Account) returns (RegisterCreatedResult) {};
+    rpc RegisterBank (Bank) returns (RegisterCreatedResult) {};
 }

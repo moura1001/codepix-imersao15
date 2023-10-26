@@ -18,15 +18,15 @@ func NewTransactionUseCase(transactionRepository model.ITransactionRepository, p
 	}
 }
 
-func (t *TransactionUseCase) Register(accountId string, amount float64, pixKeyFrom, pixKeyFromKind, description string) (*model.Transaction, error) {
+func (t *TransactionUseCase) Register(bankCode, accountNumber string, amount float64, pixKeyFrom, pixKeyFromKind, description string) (*model.Transaction, error) {
 	errMsgTemplate := "error to register transaction in repository. Details: '%s'"
 
-	account, err := t.pixRepository.FindAccountById(accountId)
+	account, _, err := t.pixRepository.FindAccountByNumber(bankCode, accountNumber)
 	if err != nil {
 		return nil, fmt.Errorf(errMsgTemplate, err)
 	}
 
-	pixKey, err := t.pixRepository.FindKeyByKind(pixKeyFrom, pixKeyFromKind)
+	pixKey, _, err := t.pixRepository.FindKeyByKind(pixKeyFrom, pixKeyFromKind)
 	if err != nil {
 		return nil, fmt.Errorf(errMsgTemplate, err)
 	}

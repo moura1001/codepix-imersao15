@@ -9,11 +9,12 @@ import (
 )
 
 type TransactionDTOInputNew struct {
-	AccountId      string  `json:"accountId" valid:"required,uuid"`
-	Amount         float64 `json:"amount" valid:"required,numeric"`
-	PixKeyFrom     string  `json:"pixKeyFrom" valid:"required"`
-	PixKeyFromKind string  `json:"pixKeyFromKind" valid:"required"`
-	Description    string  `json:"description" valid:"required"`
+	BankCodeTo      string  `json:"bankCodeTo" valid:"required"`
+	AccountNumberTo string  `json:"accountNumberTo" valid:"required,uuid"`
+	Amount          float64 `json:"amount" valid:"required,numeric"`
+	PixKeyFrom      string  `json:"pixKeyFrom" valid:"required"`
+	PixKeyFromKind  string  `json:"pixKeyFromKind" valid:"required"`
+	Description     string  `json:"description" valid:"required"`
 }
 
 func (transaction *TransactionDTOInputNew) isValid() error {

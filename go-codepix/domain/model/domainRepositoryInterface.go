@@ -2,11 +2,11 @@ package model
 
 type IPixKeyRepository interface {
 	RegisterKey(pixKey *PixKey) (*PixKey, error)
-	FindKeyByKind(key string, kind string) (*PixKey, error)
+	FindKeyByKind(key string, kind string) (*PixKey, bool, error)
 	AddBank(bank *Bank) error
 	AddAccount(account *Account) error
-	FindAccountById(id string) (*Account, error)
-	FindBankById(id string) (*Bank, error)
+	FindAccountByNumber(bankCode string, number string) (*Account, bool, error)
+	FindBankByCode(code string) (*Bank, bool, error)
 }
 
 type ITransactionRepository interface {

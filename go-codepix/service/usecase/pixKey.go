@@ -16,10 +16,10 @@ func NewPixKeyUseCase(repository model.IPixKeyRepository) PixKeyUseCase {
 	}
 }
 
-func (p *PixKeyUseCase) RegisterKey(key string, kind string, accountId string) (*model.PixKey, error) {
+func (p *PixKeyUseCase) RegisterKey(key string, kind string, accountNumber string, bankCode string) (*model.PixKey, error) {
 	errMsgTemplate := "error to register pix key in repository. Details: '%s'"
 
-	account, err := p.repository.FindAccountById(accountId)
+	account, _, err := p.repository.FindAccountByNumber(bankCode, accountNumber)
 	if err != nil {
 		return nil, fmt.Errorf(errMsgTemplate, err)
 	}
@@ -35,7 +35,7 @@ func (p *PixKeyUseCase) RegisterKey(key string, kind string, accountId string) (
 	}
 
 	if pixKeyInserted == nil {
-		return nil, fmt.Errorf(errMsgTemplate+"pix key (key=%s, kind=%s, accountId=%s) not inserted", key, kind, accountId)
+		return nil, fmt.Errorf(errMsgTemplate+"pix key (key=%s, kind=%s, bankCode=%s, accountNumber=%s) not inserted", key, kind, bankCode, accountNumber)
 	}
 
 	if pixKeyInserted != nil || pixKeyInserted.Id != pixKey.Id {
@@ -46,9 +46,63 @@ func (p *PixKeyUseCase) RegisterKey(key string, kind string, accountId string) (
 }
 
 func (p *PixKeyUseCase) FindKey(key string, kind string) (*model.PixKey, error) {
-	pixKey, err := p.repository.FindKeyByKind(key, kind)
+	pixKey, _, err := p.repository.FindKeyByKind(key, kind)
 	if err != nil {
 		return nil, fmt.Errorf("error to find pix key in repository. Details: '%s'", err)
 	}
 	return pixKey, nil
+}
+
+func (p *PixKeyUseCase) RegisterBank(code string, name string) error {
+	errMsgTemplate := "error to register bank in repository. details: '%s'"
+
+	bankDb, isErrRecordNotFound, err := p.repository.FindBankByCode(code)
+	if bankDb != nil {
+		return fmt.Errorf(errMsgTemplate, "bank already resgistrated")
+	}
+	if err != nil && !isErrRecordNotFound {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	bank, err := model.NewBank(code, name)
+	if err != nil {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	err = p.repository.AddBank(bank)
+	if err != nil {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	return nil
+}
+
+func (p *PixKeyUseCase) RegisterAccount(accountName string, accountNumber string, bankCode string) error {
+	errMsgTemplate := "error to register account in repository. details: '%s'"
+
+	bank, _, err := p.repository.FindBankByCode(bankCode)
+	if err != nil {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	accountDb, isErrRecordNotFound, err := p.repository.FindAccountByNumber(bankCode, accountNumber)
+	if accountDb != nil {
+		return fmt.Errorf(errMsgTemplate, "account already resgistrated")
+	}
+	if err != nil && !isErrRecordNotFound {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	account, err := model.NewAccount(accountName, accountNumber, bank)
+	if err != nil {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	err = p.repository.AddAccount(account)
+	if err != nil {
+		return fmt.Errorf(errMsgTemplate, err)
+	}
+
+	return nil
+
 }

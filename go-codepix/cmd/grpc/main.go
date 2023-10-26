@@ -1,12 +1,9 @@
 package main
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/moura1001/codepix/infra/db"
 	"github.com/moura1001/codepix/service/grpc"
 )
-
-var database *gorm.DB
 
 /*
 *
@@ -20,7 +17,7 @@ var database *gorm.DB
 *
 */
 func main() {
-	database = db.GetDBConnection()
+	database := db.GetDBConnection()
 
 	grpc.StartGrpcServer(database, 50051)
 }

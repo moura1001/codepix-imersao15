@@ -69,8 +69,8 @@ func (pStatus PixKeyStatus) isValid() bool {
 
 type PixKey struct {
 	Base      `valid:"required"`
-	Kind      PixKeyKind   `json:"kind" valid:"notnull" gorm:"type:varchar(8)"`
-	Key       string       `json:"key" valid:"notnull" gorm:"type:varchar(64)"`
+	Kind      PixKeyKind   `json:"kind" valid:"notnull" gorm:"uniqueIndex:idx_pix_unq;type:varchar(8)"`
+	Key       string       `json:"key" valid:"notnull" gorm:"uniqueIndex:idx_pix_unq;type:varchar(64)"`
 	Account   *Account     `valid:"required"`
 	AccountId string       `json:"account_id" valid:"notnull" gorm:"column:account_id;type:uuid;not null"`
 	Status    PixKeyStatus `json:"status" valid:"notnull" gorm:"type:varchar(16)"`

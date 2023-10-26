@@ -19,16 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PixService_RegisterPixKey_FullMethodName = "/github.com.moura1001.codepix.PixService/RegisterPixKey"
-	PixService_Find_FullMethodName           = "/github.com.moura1001.codepix.PixService/Find"
+	PixService_RegisterPixKey_FullMethodName  = "/github.com.moura1001.codepix.PixService/RegisterPixKey"
+	PixService_Find_FullMethodName            = "/github.com.moura1001.codepix.PixService/Find"
+	PixService_RegisterAccount_FullMethodName = "/github.com.moura1001.codepix.PixService/RegisterAccount"
+	PixService_RegisterBank_FullMethodName    = "/github.com.moura1001.codepix.PixService/RegisterBank"
 )
 
 // PixServiceClient is the client API for PixService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PixServiceClient interface {
-	RegisterPixKey(ctx context.Context, in *PixKeyRegistration, opts ...grpc.CallOption) (*PixKeyCreatedResult, error)
+	RegisterPixKey(ctx context.Context, in *PixKeyRegistration, opts ...grpc.CallOption) (*RegisterCreatedResult, error)
 	Find(ctx context.Context, in *PixKey, opts ...grpc.CallOption) (*PixKeyInfo, error)
+	RegisterAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*RegisterCreatedResult, error)
+	RegisterBank(ctx context.Context, in *Bank, opts ...grpc.CallOption) (*RegisterCreatedResult, error)
 }
 
 type pixServiceClient struct {
@@ -39,8 +43,8 @@ func NewPixServiceClient(cc grpc.ClientConnInterface) PixServiceClient {
 	return &pixServiceClient{cc}
 }
 
-func (c *pixServiceClient) RegisterPixKey(ctx context.Context, in *PixKeyRegistration, opts ...grpc.CallOption) (*PixKeyCreatedResult, error) {
-	out := new(PixKeyCreatedResult)
+func (c *pixServiceClient) RegisterPixKey(ctx context.Context, in *PixKeyRegistration, opts ...grpc.CallOption) (*RegisterCreatedResult, error) {
+	out := new(RegisterCreatedResult)
 	err := c.cc.Invoke(ctx, PixService_RegisterPixKey_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -57,12 +61,32 @@ func (c *pixServiceClient) Find(ctx context.Context, in *PixKey, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *pixServiceClient) RegisterAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*RegisterCreatedResult, error) {
+	out := new(RegisterCreatedResult)
+	err := c.cc.Invoke(ctx, PixService_RegisterAccount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pixServiceClient) RegisterBank(ctx context.Context, in *Bank, opts ...grpc.CallOption) (*RegisterCreatedResult, error) {
+	out := new(RegisterCreatedResult)
+	err := c.cc.Invoke(ctx, PixService_RegisterBank_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PixServiceServer is the server API for PixService service.
 // All implementations must embed UnimplementedPixServiceServer
 // for forward compatibility
 type PixServiceServer interface {
-	RegisterPixKey(context.Context, *PixKeyRegistration) (*PixKeyCreatedResult, error)
+	RegisterPixKey(context.Context, *PixKeyRegistration) (*RegisterCreatedResult, error)
 	Find(context.Context, *PixKey) (*PixKeyInfo, error)
+	RegisterAccount(context.Context, *Account) (*RegisterCreatedResult, error)
+	RegisterBank(context.Context, *Bank) (*RegisterCreatedResult, error)
 	mustEmbedUnimplementedPixServiceServer()
 }
 
@@ -70,11 +94,17 @@ type PixServiceServer interface {
 type UnimplementedPixServiceServer struct {
 }
 
-func (UnimplementedPixServiceServer) RegisterPixKey(context.Context, *PixKeyRegistration) (*PixKeyCreatedResult, error) {
+func (UnimplementedPixServiceServer) RegisterPixKey(context.Context, *PixKeyRegistration) (*RegisterCreatedResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterPixKey not implemented")
 }
 func (UnimplementedPixServiceServer) Find(context.Context, *PixKey) (*PixKeyInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
+}
+func (UnimplementedPixServiceServer) RegisterAccount(context.Context, *Account) (*RegisterCreatedResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterAccount not implemented")
+}
+func (UnimplementedPixServiceServer) RegisterBank(context.Context, *Bank) (*RegisterCreatedResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterBank not implemented")
 }
 func (UnimplementedPixServiceServer) mustEmbedUnimplementedPixServiceServer() {}
 
@@ -125,6 +155,42 @@ func _PixService_Find_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PixService_RegisterAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Account)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PixServiceServer).RegisterAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PixService_RegisterAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PixServiceServer).RegisterAccount(ctx, req.(*Account))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PixService_RegisterBank_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Bank)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PixServiceServer).RegisterBank(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PixService_RegisterBank_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PixServiceServer).RegisterBank(ctx, req.(*Bank))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PixService_ServiceDesc is the grpc.ServiceDesc for PixService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +205,14 @@ var PixService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Find",
 			Handler:    _PixService_Find_Handler,
+		},
+		{
+			MethodName: "RegisterAccount",
+			Handler:    _PixService_RegisterAccount_Handler,
+		},
+		{
+			MethodName: "RegisterBank",
+			Handler:    _PixService_RegisterBank_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

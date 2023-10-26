@@ -18,16 +18,16 @@ func NewPixKeyGrpcService(useCase usecase.PixKeyUseCase) PixKeyGrpcService {
 	}
 }
 
-func (p PixKeyGrpcService) RegisterPixKey(ctx context.Context, in *pb.PixKeyRegistration) (*pb.PixKeyCreatedResult, error) {
-	pixKey, err := p.pixKeyUseCase.RegisterKey(in.Key, in.Kind, in.AccountId)
+func (p PixKeyGrpcService) RegisterPixKey(ctx context.Context, in *pb.PixKeyRegistration) (*pb.RegisterCreatedResult, error) {
+	pixKey, err := p.pixKeyUseCase.RegisterKey(in.Key, in.Kind, in.AccountNumber, in.BankCode)
 	if err != nil {
-		return &pb.PixKeyCreatedResult{
+		return &pb.RegisterCreatedResult{
 			Status: "not created",
 			Error:  err.Error(),
 		}, err
 	}
 
-	return &pb.PixKeyCreatedResult{
+	return &pb.RegisterCreatedResult{
 		Id:     pixKey.Id,
 		Status: "created",
 	}, nil
@@ -44,13 +44,42 @@ func (p PixKeyGrpcService) Find(ctx context.Context, in *pb.PixKey) (*pb.PixKeyI
 		Key:  pixKey.Key,
 		Kind: string(pixKey.Kind),
 		Account: &pb.Account{
-			AccountId:     pixKey.AccountId,
 			AccountNumber: pixKey.Account.Number,
-			BankId:        pixKey.Account.BankId,
+			BankCode:      pixKey.Account.BankCode,
 			BankName:      pixKey.Account.Bank.Name,
 			OwnerName:     pixKey.Account.OwnerName,
 			CreatedAt:     pixKey.Account.CreatedAt.String(),
 		},
 		CreatedAt: pixKey.CreatedAt.String(),
 	}, nil
+}
+
+func (p PixKeyGrpcService) RegisterAccount(ctx context.Context, in *pb.Account) (*pb.RegisterCreatedResult, error) {
+	err := p.pixKeyUseCase.RegisterAccount(in.OwnerName, in.AccountNumber, in.BankCode)
+	if err != nil {
+		return &pb.RegisterCreatedResult{
+			Status: "not created",
+			Error:  err.Error(),
+		}, err
+	}
+
+	return &pb.RegisterCreatedResult{
+		Status: "created",
+	}, nil
+
+}
+
+func (p PixKeyGrpcService) RegisterBank(ctx context.Context, in *pb.Bank) (*pb.RegisterCreatedResult, error) {
+	err := p.pixKeyUseCase.RegisterBank(in.BankCode, in.BankName)
+	if err != nil {
+		return &pb.RegisterCreatedResult{
+			Status: "not created",
+			Error:  err.Error(),
+		}, err
+	}
+
+	return &pb.RegisterCreatedResult{
+		Status: "created",
+	}, nil
+
 }

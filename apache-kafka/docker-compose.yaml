@@ -37,7 +37,7 @@ services:
     depends_on:
       - zookeeper
     extra_hosts:
-      - "host.docker.internal:172.17.0.1"
+      - "host.docker.internal:host-gateway"
   
   kafka-topics-generator:
     image: confluentinc/cp-kafka:latest
@@ -49,7 +49,7 @@ services:
         kafka-topics --create --topic=bank001 --if-not-exists --bootstrap-server=kafka:9092 &&
         kafka-topics --create --topic=bank002 --if-not-exists --bootstrap-server=kafka:9092"
     extra_hosts:
-      - "host.docker.internal:172.17.0.1"
+      - "host.docker.internal:host-gateway"
     depends_on:
       - kafka
 

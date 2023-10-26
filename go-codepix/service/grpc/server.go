@@ -5,11 +5,11 @@ import (
 	"log"
 	"net"
 
-	"github.com/jinzhu/gorm"
 	"github.com/moura1001/codepix/service/factory"
 	"github.com/moura1001/codepix/service/grpc/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"gorm.io/gorm"
 )
 
 func StartGrpcServer(database *gorm.DB, port int) {

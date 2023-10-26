@@ -3,6 +3,7 @@ package model_test
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/moura1001/codepix/domain/model"
 	"github.com/stretchr/testify/require"
 )
@@ -12,7 +13,7 @@ func TestModel_NewPixKey(t *testing.T) {
 	name := "Caixa"
 	bank, _ := model.NewBank(code, name)
 
-	accountNumber := "somenumber"
+	accountNumber := uuid.NewString()
 	ownerName := "Moura"
 	account, _ := model.NewAccount(ownerName, accountNumber, bank)
 

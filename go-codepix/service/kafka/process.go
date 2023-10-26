@@ -6,11 +6,11 @@ import (
 	"os"
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/jinzhu/gorm"
 	"github.com/moura1001/codepix/domain/model"
 	"github.com/moura1001/codepix/service/dto"
 	"github.com/moura1001/codepix/service/factory"
 	"github.com/moura1001/codepix/service/usecase"
+	"gorm.io/gorm"
 )
 
 type KafkaProcessor struct {
@@ -70,7 +70,8 @@ func (kp *KafkaProcessor) processTransaction(message *ckafka.Message) error {
 	transactionUseCase := factory.NewTransactionUseCase(kp.database)
 
 	createdTransaction, err := transactionUseCase.Register(
-		transactionDTOInput.AccountId,
+		transactionDTOInput.BankCodeTo,
+		transactionDTOInput.AccountNumberTo,
 		transactionDTOInput.Amount,
 		transactionDTOInput.PixKeyFrom,
 		transactionDTOInput.PixKeyFromKind,

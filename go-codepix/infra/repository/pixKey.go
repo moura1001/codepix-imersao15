@@ -21,7 +21,7 @@ func (r PixKeyRepositoryDb) AddBank(bank *model.Bank) error {
 }
 
 func (r PixKeyRepositoryDb) AddAccount(account *model.Account) error {
-	err := r.Db.Create(&account).Error
+	err := r.Db.Create(account).Error
 	if err != nil {
 		return fmt.Errorf("error to insert account on database. Details: '%s'", err)
 	}

@@ -31,14 +31,34 @@ export class BankAccountsService implements OnModuleInit {
     this.BANK_CODE = this.configService.get('BANK_CODE');
   }
 
-  create(createBankAccountDto: CreateBankAccountDto) {
-    return this.bankAccountRepo.save(createBankAccountDto);
+  async create(createBankAccountDto: CreateBankAccountDto) {
+    try {
+      const hasAccount = await this.bankAccountRepo.exist({
+        where: {
+          account_number: createBankAccountDto.account_number,
+        },
+      });
+      if (!hasAccount) {
+        return this.bankAccountRepo.save(createBankAccountDto);
+      }
+      throw new AccountAlreadyExistsError(
+        'account ' +
+          JSON.stringify(createBankAccountDto) +
+          ' already registrated',
+      );
+    } catch (e) {
+      const errObj = {
+        error: 'BankAccountsService',
+        method: 'create',
+        details: e,
+      };
+      console.log(errObj);
+      throw e;
+    }
   }
 
   async registerOnPix(createBankAccountDto: CreateBankAccountDto) {
-    await this.bankAccountRepo.findOneOrFail({
-      where: { account_number: createBankAccountDto.account_number },
-    });
+    await this.findOne(createBankAccountDto.account_number);
 
     const account = {
       bankCode: this.BANK_CODE,
@@ -56,6 +76,7 @@ export class BankAccountsService implements OnModuleInit {
         grpcService: 'PixService.RegisterAccount',
         response: remotePixAccountRegistred,
       };
+      console.log(errObj);
       throw new PixAccountRegisterGrpcError(JSON.stringify(errObj));
     }
   }
@@ -72,7 +93,7 @@ export class BankAccountsService implements OnModuleInit {
         details: e.details,
       };
       console.log(errObj);
-      throw new PixAccountRegisterGrpcError(JSON.stringify(errObj));
+      throw new PixAccountRegisterUnknowGrpcError(JSON.stringify(errObj));
     }
   }
 
@@ -80,10 +101,16 @@ export class BankAccountsService implements OnModuleInit {
     return this.bankAccountRepo.find();
   }
 
-  findOne(account_number: string) {
-    return this.bankAccountRepo.findOneOrFail({
-      where: { account_number },
-    });
+  async findOne(account_number: string) {
+    try {
+      return await this.bankAccountRepo.findOneOrFail({
+        where: { account_number },
+      });
+    } catch (e) {
+      throw new AccountNotFoundError(
+        'account ' + account_number + ' not found',
+      );
+    }
   }
 
   /*update(id: number, updateBankAccountDto: UpdateBankAccountDto) {
@@ -95,4 +122,7 @@ export class BankAccountsService implements OnModuleInit {
   }*/
 }
 
+export class AccountAlreadyExistsError extends Error {}
 export class PixAccountRegisterGrpcError extends Error {}
+export class PixAccountRegisterUnknowGrpcError extends Error {}
+export class AccountNotFoundError extends Error {}

@@ -15,6 +15,7 @@ import {
 } from './pix-keys.grpc';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { AccountNotFoundError } from 'src/bank-accounts/bank-accounts.service';
 
 @Injectable()
 export class PixKeysService implements OnModuleInit {
@@ -37,9 +38,14 @@ export class PixKeysService implements OnModuleInit {
   }
 
   async create(bankAccountNumber: string, createPixKeyDto: CreatePixKeyDto) {
-    await this.bankAccountRepo.findOneOrFail({
+    const hasAccount = await this.bankAccountRepo.exist({
       where: { account_number: bankAccountNumber },
     });
+    if (!hasAccount) {
+      throw new AccountNotFoundError(
+        'account ' + bankAccountNumber + ' not exists',
+      );
+    }
     // lógica para verificar se a chave pix existe no banco central (grpc)
     const remotePixKey = await this.findRemotePixKey(createPixKeyDto);
     if (remotePixKey && remotePixKey.id !== '') {
@@ -75,7 +81,7 @@ export class PixKeysService implements OnModuleInit {
   private async findRemotePixKey(
     pixKey: PixKeyGrpcInput,
   ): Promise<PixKeyInfo | null> {
-    let errObj = {
+    const errObj = {
       error: 'PixKeysService',
       method: 'findRemotePixKey',
     };
@@ -86,10 +92,6 @@ export class PixKeysService implements OnModuleInit {
       console.log(errObj);
       return null;
     }
-
-    errObj['details'] = 'gRPC unknow error';
-    errObj['input'] = pixKey;
-    throw new PixKeyUnknowGrpcError(JSON.stringify(errObj));
   }
 
   private async registerRemotePixKey(
@@ -104,7 +106,7 @@ export class PixKeysService implements OnModuleInit {
         details: e.details,
       };
       console.log(errObj);
-      throw new PixKeyRegisterGrpcError(JSON.stringify(errObj));
+      throw new PixKeyUnknowGrpcError(JSON.stringify(errObj));
     }
   }
 
@@ -119,7 +121,7 @@ export class PixKeysService implements OnModuleInit {
     });
 
     if (hasLocalPixKey) {
-      throw new PixKeyAlreadyExistsError('pix key already exist');
+      throw new PixKeyAlreadyExistsError('pix key already exists');
     } else {
       return this.pixKeyRepo.save({
         id: remotePixKey.id,

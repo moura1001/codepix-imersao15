@@ -44,6 +44,7 @@ export class BankOperationsService implements OnModuleInit {
         grpcService: 'PixService.RegisterBank',
         response: remotePixBankRegistred,
       };
+      console.log(errObj);
       throw new PixBankRegisterGrpcError(JSON.stringify(errObj));
     }
   }
@@ -60,7 +61,7 @@ export class BankOperationsService implements OnModuleInit {
         details: e.details,
       };
       console.log(errObj);
-      throw new PixBankRegisterGrpcError(JSON.stringify(errObj));
+      throw new PixBankRegisterUnknowGrpcError(JSON.stringify(errObj));
     }
   }
 
@@ -86,3 +87,4 @@ export class BankOperationsService implements OnModuleInit {
 }
 
 export class PixBankRegisterGrpcError extends Error {}
+export class PixBankRegisterUnknowGrpcError extends Error {}

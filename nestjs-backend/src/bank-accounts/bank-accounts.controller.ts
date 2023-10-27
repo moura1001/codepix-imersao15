@@ -12,14 +12,19 @@ export class BankAccountsController {
     return this.bankAccountsService.create(createBankAccountDto);
   }
 
+  @Post('pix-system')
+  registerOnPixSystem(@Body() createBankAccountDto: CreateBankAccountDto) {
+    return this.bankAccountsService.registerOnPix(createBankAccountDto);
+  }
+
   @Get()
   findAll() {
     return this.bankAccountsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bankAccountsService.findOne(id);
+  @Get(':number')
+  findOne(@Param('number') number: string) {
+    return this.bankAccountsService.findOne(number);
   }
 
   /*@Patch(':id')

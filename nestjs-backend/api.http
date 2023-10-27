@@ -1,15 +1,28 @@
 GET http://localhost:3000/bank-accounts
 
-@bank_account_id = 815ab84b-1ac0-47f5-8765-9f028e9d04e9
+@bank_account_number = a01b36d1-76e6-4b2f-978f-71e46fb1d831
 
 ###
-GET http://localhost:3000/bank-accounts/{{bank_account_id}}
+GET http://localhost:3000/bank-accounts/{{bank_account_number}}
 
 ###
 POST http://localhost:3000/bank-accounts
 Content-Type: application/json
 
 {
-    "account_number": "7777-7",
+    "account_number": {{bank_account_number}},
     "owner_name": "Moura"
+}
+
+
+###
+GET http://localhost:3000/bank-accounts/{{bank_account_number}}/pix-keys
+
+###
+POST http://localhost:3000/bank-accounts/{{bank_account_number}}/pix-keys
+Content-Type: application/json
+
+{
+    "kind": "email",
+    "key": "email@email.com"
 }

@@ -1,15 +1,12 @@
 import { Module } from '@nestjs/common';
-import { BankAccountsService } from './bank-accounts.service';
-import { BankAccountsController } from './bank-accounts.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { BankAccount } from './entities/bank-account.entity';
+import { BankOperationsService } from './bank-operations.service';
+import { BankOperationsController } from './bank-operations.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BankAccount]),
     ClientsModule.registerAsync([
       {
         name: 'PIX_PACKAGE',
@@ -26,7 +23,7 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
     ]),
     ConfigModule,
   ],
-  controllers: [BankAccountsController],
-  providers: [BankAccountsService],
+  controllers: [BankOperationsController],
+  providers: [BankOperationsService],
 })
-export class BankAccountsModule {}
+export class BankOperationsModule {}

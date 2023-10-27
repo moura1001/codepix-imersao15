@@ -1,19 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'bank_accounts' })
 export class BankAccount {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  account_number: string;
 
-    @Column()
-    account_number: string;
+  @Column()
+  owner_name: string;
 
-    @Column()
-    owner_name: string;
+  @Column({ default: 0 })
+  balance: number;
 
-    @Column({default:0})
-    balance: number;
-
-    @CreateDateColumn({type:'timestamp'})
-    created_at: Date;
+  @CreateDateColumn({ type: 'timestamp' })
+  created_at: Date;
 }

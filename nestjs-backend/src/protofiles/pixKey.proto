@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package github.com.moura1001.codepix;
+
+option go_package = "protofiles;pb";
+
+message PixKeyRegistration {
+    string kind = 1;
+    string key = 2;
+    string accountNumber = 3;
+    string bankCode = 4;
+}
+
+message PixKey {
+    string kind = 1;
+    string key = 2;
+}
+
+message Bank {
+    string bankCode = 1;
+    string bankName = 2;
+}
+
+message Account {
+    string accountNumber = 1;
+    string bankCode = 2;
+    string bankName = 3;
+    string ownerName = 4;
+    string createdAt = 5;
+}
+
+message PixKeyInfo {
+    string id = 1;
+    string kind = 2;
+    string key = 3;
+    Account account = 4;
+    string createdAt = 5;
+}
+
+message RegisterCreatedResult {
+    string id = 1;
+    string status = 2;
+    string error = 3;
+}
+
+service PixService {
+    rpc RegisterPixKey (PixKeyRegistration) returns (RegisterCreatedResult) {};
+    rpc Find(PixKey) returns (PixKeyInfo) {};
+    rpc RegisterAccount (Account) returns (RegisterCreatedResult) {};
+    rpc RegisterBank (Bank) returns (RegisterCreatedResult) {};  
+}

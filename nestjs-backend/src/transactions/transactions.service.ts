@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import {
   Transaction,
@@ -10,20 +10,30 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { BankAccount } from '../bank-accounts/entities/bank-account.entity';
 import { ConfigService } from '@nestjs/config';
 import { AccountNotFoundError } from 'src/bank-accounts/bank-accounts.service';
+import { ClientKafka } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class TransactionsService implements OnModuleInit {
   private BANK_CODE: string;
+  private TRANSACTIONS_TOPIC: string;
+  private TRANSACTION_CONFIRMATION_TOPIC: string;
 
   constructor(
     @InjectRepository(Transaction)
     private transactionRepo: Repository<Transaction>,
     private configService: ConfigService,
     private dataSource: DataSource,
+    @Inject('KAFKA_SERVICE')
+    private kafkaService: ClientKafka,
   ) {}
 
   onModuleInit() {
     this.BANK_CODE = this.configService.get('BANK_CODE');
+    this.TRANSACTIONS_TOPIC = this.configService.get('TRANSACTIONS_TOPIC');
+    this.TRANSACTION_CONFIRMATION_TOPIC = this.configService.get(
+      'TRANSACTION_CONFIRMATION_TOPIC',
+    );
   }
 
   // inicia a transferência
@@ -31,7 +41,7 @@ export class TransactionsService implements OnModuleInit {
     bankAccountNumberFrom: string,
     createTransactionDto: CreateTransactionDto,
   ) {
-    return await this.dataSource.transaction(async (manager) => {
+    const transaction = await this.dataSource.transaction(async (manager) => {
       let bankAccount: BankAccount;
       try {
         bankAccount = await manager.findOneOrFail(BankAccount, {
@@ -61,8 +71,35 @@ export class TransactionsService implements OnModuleInit {
 
       await manager.save<BankAccount>(bankAccount);
 
+      const sendData = {
+        relatedTransactionIdFrom: transaction.id,
+	      bankCodeFrom: this.BANK_CODE,
+        bankCodeTo: createTransactionDto.bank_code_to,
+        accountNumberTo: createTransactionDto.account_number_to,
+        amount: createTransactionDto.amount,
+        pixKeyFrom: createTransactionDto.pix_key_key_from,
+        pixKeyFromKind: createTransactionDto.pix_key_kind_from,
+        description: createTransactionDto.description,
+      };
+
+      try {
+        await lastValueFrom(
+          this.kafkaService.emit(this.TRANSACTIONS_TOPIC, sendData),
+        );
+      } catch (e) {
+        const errObj = {
+          error: 'TransactionsService',
+          method: 'create',
+          details: e.details,
+        };
+        console.log(errObj);
+        throw new TransactionUnknowKafkaError(JSON.stringify(errObj));
+      }
+
       return transaction;
     });
+
+    return transaction;
   }
 
   findAll(bankAccountNumber: string) {
@@ -86,3 +123,4 @@ export class TransactionsService implements OnModuleInit {
 }
 
 export class TransactionInvalidError extends Error {}
+export class TransactionUnknowKafkaError extends Error {}

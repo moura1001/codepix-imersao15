@@ -68,12 +68,12 @@ func (pStatus PixKeyStatus) isValid() bool {
 }
 
 type PixKey struct {
-	Base      `valid:"required"`
-	Kind      PixKeyKind   `json:"kind" valid:"notnull" gorm:"uniqueIndex:idx_pix_unq;type:varchar(8)"`
-	Key       string       `json:"key" valid:"notnull" gorm:"uniqueIndex:idx_pix_unq;type:varchar(64)"`
-	Account   *Account     `valid:"required"`
-	AccountId string       `json:"account_id" valid:"notnull" gorm:"column:account_id;type:uuid;not null"`
-	Status    PixKeyStatus `json:"status" valid:"notnull" gorm:"type:varchar(16)"`
+	Base          `valid:"required"`
+	Kind          PixKeyKind   `json:"kind" valid:"notnull" gorm:"uniqueIndex:idx_pix_unq;type:varchar(8)"`
+	Key           string       `json:"key" valid:"notnull" gorm:"uniqueIndex:idx_pix_unq;type:varchar(64)"`
+	Account       *Account     `valid:"required" gorm:"foreignKey:AccountNumber;references:Number"`
+	AccountNumber string       `json:"account_number" valid:"notnull" gorm:"column:account_number;type:uuid;not null"`
+	Status        PixKeyStatus `json:"status" valid:"notnull" gorm:"type:varchar(16)"`
 }
 
 func (pixKey *PixKey) isValid() error {
@@ -108,7 +108,7 @@ func NewPixKey(kind, key string, account *Account) (*PixKey, error) {
 		Status:  PIX_KEY_STATUS_ACTIVE,
 	}
 	if account != nil {
-		pixKey.AccountId = account.Id
+		pixKey.AccountNumber = account.Number
 	}
 
 	pixKey.Id = uuid.NewString()

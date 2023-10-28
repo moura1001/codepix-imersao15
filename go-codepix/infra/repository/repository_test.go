@@ -33,6 +33,7 @@ func Test_RepositoriesInsert(t *testing.T) {
 	key := "email@email.com"
 	pixKey, _ := model.NewPixKey(kind, key, sourceAccount)
 
+	// bank
 	err = pixKeyRepository.AddBank(bank)
 	require.Nil(t, err)
 	bankDb, _, err := pixKeyRepository.FindBankByCode(bank.Code)
@@ -41,6 +42,7 @@ func Test_RepositoriesInsert(t *testing.T) {
 	require.Equal(t, bankDb.Code, bank.Code)
 	require.Equal(t, bankDb.Name, bank.Name)
 
+	// accounts
 	err = pixKeyRepository.AddAccount(sourceAccount)
 	require.Nil(t, err)
 	sourceAccountDb, _, err := pixKeyRepository.FindAccountByNumber(bank.Code, sourceAccount.Number)
@@ -57,13 +59,30 @@ func Test_RepositoriesInsert(t *testing.T) {
 	require.Equal(t, destinationAccountDb.Number, destinationAccount.Number)
 	require.Equal(t, destinationAccountDb.BankCode, bank.Code)
 
+	bankDb, _, err = pixKeyRepository.FindBankByCode(bank.Code)
+	require.Nil(t, err)
+	require.Equal(t, bankDb.Code, bank.Code)
+
+	// pix key
 	pixKeyDb, err := pixKeyRepository.RegisterKey(pixKey)
 	require.Nil(t, err)
 	require.Equal(t, pixKeyDb.Id, pixKey.Id)
 	require.Equal(t, pixKeyDb.Kind, pixKey.Kind)
 	require.Equal(t, pixKeyDb.Status, model.PIX_KEY_STATUS_ACTIVE)
 	require.Equal(t, pixKeyDb.Status, pixKey.Status)
+	require.NotNil(t, pixKeyDb.Account)
+	require.Equal(t, pixKeyDb.AccountNumber, sourceAccount.Number)
 
+	pixKeyDb, _, err = pixKeyRepository.FindKeyByKind(pixKey.Key, string(pixKey.Kind))
+	require.Nil(t, err)
+	require.Equal(t, pixKeyDb.AccountNumber, sourceAccount.Number)
+	require.NotNil(t, pixKeyDb.Account)
+	require.NotNil(t, pixKeyDb.Account.Bank)
+	require.Equal(t, pixKeyDb.Account.Number, sourceAccount.Number)
+	require.Equal(t, pixKeyDb.Account.BankCode, bank.Code)
+	require.Equal(t, pixKeyDb.Account.Bank.Code, bank.Code)
+
+	// transaction
 	amount := 7.77
 	descriptionTransaction := "My description"
 	transaction1, _ := model.NewTransaction(destinationAccount, amount, pixKey, descriptionTransaction)

@@ -14,7 +14,7 @@ type Account struct {
 	Number    string    `json:"number" valid:"uuid" gorm:"primaryKey;type:uuid"`
 	Bank      *Bank     `valid:"required" gorm:"foreignKey:BankCode;references:Code"`
 	BankCode  string    `json:"bank_code" valid:"notnull" gorm:"column:bank_code;type:varchar(8)"`
-	PixKeys   []*PixKey `valid:"-" gorm:"foreignKey:AccountId"`
+	PixKeys   []*PixKey `valid:"-" gorm:"foreignKey:AccountNumber"`
 }
 
 func (account *Account) isValid() error {

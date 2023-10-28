@@ -39,12 +39,12 @@ func (tStatus TransactionStatus) isValid() bool {
 type Transaction struct {
 	Base              `valid:"required"`
 	AccountTo         *Account          `valid:"required"`
-	AccountToId       string            `json:"account_to_id" valid:"notnull" gorm:"column:account_to_id;type:uuid;not null"`
+	AccountToNumber   string            `json:"account_to_number" valid:"notnull" gorm:"column:account_to_number;type:uuid;not null"`
 	Amount            float64           `json:"amount" valid:"notnull" gorm:"type:float"`
 	PixKeyFrom        *PixKey           `valid:"required"`
 	PixKeyFromId      string            `json:"pix_key_from_id" valid:"notnull" gorm:"column:pix_key_from_id;type:uuid;not null"`
 	Status            TransactionStatus `json:"status" valid:"notnull" gorm:"type:varchar(16)"`
-	Description       string            `json:"description" valid:"notnull" gorm:"type:varchar(128)"`
+	Description       string            `json:"description" valid:"-" gorm:"type:varchar(128)"`
 	CancelDescription string            `json:"cancel_description" valid:"-" gorm:"type:varchar(128)"`
 }
 
@@ -54,7 +54,7 @@ func (transaction *Transaction) isValid() error {
 		return err
 	}
 
-	if transaction.PixKeyFrom.AccountId == transaction.AccountToId {
+	if transaction.PixKeyFrom.AccountNumber == transaction.AccountToNumber {
 		return fmt.Errorf("the transaction source and destination account cannot be the same")
 	}
 
@@ -79,7 +79,7 @@ func NewTransaction(accountTo *Account, amount float64, pixKeyFrom *PixKey, desc
 		Description: description,
 	}
 	if accountTo != nil {
-		transaction.AccountToId = accountTo.Id
+		transaction.AccountToNumber = accountTo.Number
 	}
 	if pixKeyFrom != nil {
 		transaction.PixKeyFromId = pixKeyFrom.Id

@@ -13,7 +13,7 @@ export class BankAccount {
   @Column()
   owner_name: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 1000000000 })
   balance: number;
 
   @CreateDateColumn({ type: 'timestamp' })

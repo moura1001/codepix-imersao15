@@ -8,6 +8,8 @@ import { BankAccount } from './bank-accounts/entities/bank-account.entity';
 import { PixKeysModule } from './pix-keys/pix-keys.module';
 import { PixKey } from './pix-keys/entities/pix-key.entity';
 import { BankOperationsModule } from './bank-operations/bank-operations.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { Transaction } from './transactions/entities/transaction.entity';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { BankOperationsModule } from './bank-operations/bank-operations.module';
           configService.get('ENV_MODE') === 'test'
             ? configService.get('DSN_TEST')
             : configService.get('DSN'),
-        entities: [BankAccount, PixKey],
+        entities: [BankAccount, PixKey, Transaction],
         synchronize: /true/i.test(configService.get('AUTO_MIGRATE_DB')),
         logging: /true/i.test(configService.get('AUTO_MIGRATE_DB')),
       }),
@@ -32,6 +34,7 @@ import { BankOperationsModule } from './bank-operations/bank-operations.module';
     BankAccountsModule,
     PixKeysModule,
     BankOperationsModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

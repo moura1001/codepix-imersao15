@@ -113,6 +113,10 @@ export class BankAccountsService implements OnModuleInit {
     }
   }
 
+  async save(bankAccount: BankAccount) {
+    return await this.bankAccountRepo.save(bankAccount);
+  }
+
   /*update(id: number, updateBankAccountDto: UpdateBankAccountDto) {
     return `This action updates a #${id} bankAccount`;
   }

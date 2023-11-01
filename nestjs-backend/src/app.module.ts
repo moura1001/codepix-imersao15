@@ -14,7 +14,7 @@ import { Transaction } from './transactions/entities/transaction.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env'],
+      envFilePath: ['.env', `.bank-${process.env.BANK_CODE}.env`],
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -23,8 +23,18 @@ import { Transaction } from './transactions/entities/transaction.entity';
         url:
           configService.get('ENV_MODE') === 'dev' ||
           configService.get('ENV_MODE') === 'test'
-            ? configService.get('DSN_TEST')
-            : configService.get('DSN'),
+            ? configService
+                .get('DSN_TEST')
+                .replace(
+                  /:5432\/(\w+)\?/i,
+                  `:5432/${configService.get('TYPEORM_DATABASE')}?`,
+                )
+            : configService
+                .get('DSN')
+                .replace(
+                  /:5432\/(\w+)\?/i,
+                  `:5432/${configService.get('TYPEORM_DATABASE')}?`,
+                ),
         entities: [BankAccount, PixKey, Transaction],
         synchronize: /true/i.test(configService.get('AUTO_MIGRATE_DB')),
         logging: /true/i.test(configService.get('AUTO_MIGRATE_DB')),

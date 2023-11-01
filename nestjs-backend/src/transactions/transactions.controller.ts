@@ -4,17 +4,23 @@ import {
   Post,
   Body,
   Param,
+  ValidationPipe,
   //  Patch,
   //  Param,
   //  Delete,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { ReceiveTransactionDto } from './dto/receive-transaction.dto';
+import { TransactionStatus } from './entities/transaction.entity';
 //import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Controller('bank-accounts/:bankAccountNumberFrom/transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(private readonly transactionsService: TransactionsService) {
+    console.log('TransactionsController BANK_CODE -> ', process.env.BANK_CODE);
+  }
 
   @Post()
   create(
@@ -46,4 +52,34 @@ export class TransactionsController {
   remove(@Param('id') id: string) {
     return this.transactionsService.remove(+id);
   }*/
+
+  @MessagePattern('bank001')
+  async onTransactionReceivedBank001(
+    @Payload(new ValidationPipe()) message: ReceiveTransactionDto,
+  ) {
+    if (process.env.BANK_CODE !== '001') return;
+    await this.processReceivedTransaction(message);
+  }
+
+  @MessagePattern('bank002')
+  async onTransactionReceivedBank002(
+    @Payload(new ValidationPipe()) message: ReceiveTransactionDto,
+  ) {
+    if (process.env.BANK_CODE !== '002') return;
+    await this.processReceivedTransaction(message);
+  }
+
+  async processReceivedTransaction(
+    @Payload(new ValidationPipe()) message: ReceiveTransactionDto,
+  ) {
+    console.log(process.env.BANK_CODE + ' RECEIVED MESSAGE ->', message);
+    switch (message.status) {
+      case TransactionStatus.PENDING:
+        await this.transactionsService.receiveFromAnotherBank(message);
+        return;
+      case TransactionStatus.CONFIRMED:
+        await this.transactionsService.completeTransaction(message);
+        return;
+    }
+  }
 }

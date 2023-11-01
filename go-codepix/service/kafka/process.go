@@ -49,7 +49,7 @@ func (kp *KafkaProcessor) processMessage(message *ckafka.Message) {
 		if err != nil {
 			log.Println(err)
 			if transactionId != "" {
-				err = kp.cancelTransactionNew(transactionId, err.Error(), *transactionDTOInput, factory.NewTransactionUseCase(kp.database))
+				err = kp.cancelTransactionNew(transactionId, err.Error(), transactionDTOInput, factory.NewTransactionUseCase(kp.database))
 				if err != nil {
 					log.Println(err)
 				}
@@ -127,7 +127,7 @@ func (kp *KafkaProcessor) processTransactionConfirmation(message *ckafka.Message
 
 	switch transactionDTOInput.Status {
 	case model.TRANSACTION_STATUS_CONFIRMED:
-		err = kp.confirmTransaction(*transactionDTOInput, transactionUseCase)
+		err = kp.confirmTransaction(transactionDTOInput, transactionUseCase)
 		if err != nil {
 			return fmt.Errorf(errMessageTemplate, err)
 		}
@@ -137,7 +137,7 @@ func (kp *KafkaProcessor) processTransactionConfirmation(message *ckafka.Message
 			return fmt.Errorf(errMessageTemplate, err)
 		}
 	default:
-		err = kp.cancelTransactionExistent(*transactionDTOInput, transactionUseCase)
+		err = kp.cancelTransactionExistent(transactionDTOInput, transactionUseCase)
 		if err != nil {
 			return fmt.Errorf(errMessageTemplate, err)
 		}
@@ -146,7 +146,7 @@ func (kp *KafkaProcessor) processTransactionConfirmation(message *ckafka.Message
 	return nil
 }
 
-func (kp *KafkaProcessor) confirmTransaction(transactionInput dto.TransactionDTOInputExistent, transactionUseCase usecase.TransactionUseCase) error {
+func (kp *KafkaProcessor) confirmTransaction(transactionInput *dto.TransactionDTOInputExistent, transactionUseCase usecase.TransactionUseCase) error {
 	errMessageTemplate := "error to confirm transaction. Details: %s"
 
 	confirmedTransaction, err := transactionUseCase.Confirm(transactionInput.Id)
@@ -155,7 +155,7 @@ func (kp *KafkaProcessor) confirmTransaction(transactionInput dto.TransactionDTO
 	}
 
 	sourceBankTopic := "bank" + confirmedTransaction.PixKeyFrom.Account.Bank.Code
-	transactionJsonOutput, err := dto.NewTransactionDTOOutputJsonExistent(transactionInput)
+	transactionJsonOutput, err := dto.NewTransactionDTOOutputJsonExistent(*transactionInput)
 	if err != nil {
 		return fmt.Errorf(errMessageTemplate, err)
 	}
@@ -168,7 +168,7 @@ func (kp *KafkaProcessor) confirmTransaction(transactionInput dto.TransactionDTO
 	return nil
 }
 
-func (kp *KafkaProcessor) cancelTransactionNew(id string, cancelDescription string, transactionInput dto.TransactionDTOInputNew, transactionUseCase usecase.TransactionUseCase) error {
+func (kp *KafkaProcessor) cancelTransactionNew(id string, cancelDescription string, transactionInput *dto.TransactionDTOInputNew, transactionUseCase usecase.TransactionUseCase) error {
 	errMessageTemplate := "error to cancel new transaction. Details: %s"
 
 	cancelledTransaction, err := transactionUseCase.Cancel(id, cancelDescription)
@@ -177,7 +177,7 @@ func (kp *KafkaProcessor) cancelTransactionNew(id string, cancelDescription stri
 	}
 
 	sourceBankTopic := "bank" + cancelledTransaction.PixKeyFrom.Account.Bank.Code
-	transactionJsonOutput, err := dto.NewTransactionDTOOutputJsonNew(id, model.TRANSACTION_STATUS_CANCELLED, cancelDescription, transactionInput)
+	transactionJsonOutput, err := dto.NewTransactionDTOOutputJsonNew(id, model.TRANSACTION_STATUS_CANCELLED, cancelDescription, *transactionInput)
 	if err != nil {
 		return fmt.Errorf(errMessageTemplate, err)
 	}
@@ -190,7 +190,7 @@ func (kp *KafkaProcessor) cancelTransactionNew(id string, cancelDescription stri
 	return nil
 }
 
-func (kp *KafkaProcessor) cancelTransactionExistent(transactionInput dto.TransactionDTOInputExistent, transactionUseCase usecase.TransactionUseCase) error {
+func (kp *KafkaProcessor) cancelTransactionExistent(transactionInput *dto.TransactionDTOInputExistent, transactionUseCase usecase.TransactionUseCase) error {
 	errMessageTemplate := "error to cancel existent transaction. Details: %s"
 
 	cancelledTransaction, err := transactionUseCase.Cancel(transactionInput.Id, transactionInput.CancelDescription)
@@ -199,7 +199,7 @@ func (kp *KafkaProcessor) cancelTransactionExistent(transactionInput dto.Transac
 	}
 
 	sourceBankTopic := "bank" + cancelledTransaction.PixKeyFrom.Account.Bank.Code
-	transactionJsonOutput, err := dto.NewTransactionDTOOutputJsonExistent(transactionInput)
+	transactionJsonOutput, err := dto.NewTransactionDTOOutputJsonExistent(*transactionInput)
 	if err != nil {
 		return fmt.Errorf(errMessageTemplate, err)
 	}

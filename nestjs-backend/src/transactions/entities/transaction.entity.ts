@@ -42,7 +42,7 @@ export class Transaction {
   @Column()
   bank_code_from: string;
 
-  @Column()
+  @Column({ nullable: true })
   account_number_from: string;
 
   @Column()

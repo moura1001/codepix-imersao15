@@ -38,7 +38,7 @@ func (tStatus TransactionStatus) isValid() bool {
 
 type Transaction struct {
 	Base              `valid:"required"`
-	AccountTo         *Account          `valid:"required"`
+	AccountTo         *Account          `valid:"required" gorm:"foreignKey:AccountToNumber;references:Number"`
 	AccountToNumber   string            `json:"account_to_number" valid:"notnull" gorm:"column:account_to_number;type:uuid;not null"`
 	Amount            float64           `json:"amount" valid:"notnull" gorm:"type:float"`
 	PixKeyFrom        *PixKey           `valid:"required"`

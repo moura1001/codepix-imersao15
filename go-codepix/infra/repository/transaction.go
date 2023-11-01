@@ -30,7 +30,10 @@ func (r TransactionRepositoryDb) Save(transaction *model.Transaction) error {
 func (r TransactionRepositoryDb) FindById(id string) (*model.Transaction, error) {
 	var transaction model.Transaction
 
-	r.Db.Preload("AccountTo.Bank").Find(&transaction, "id=?", id)
+	r.Db.
+		Preload("AccountTo.Bank").
+		Preload("PixKeyFrom.Account.Bank").
+		Find(&transaction, "id=?", id)
 
 	if transaction.Id == "" {
 		return nil, fmt.Errorf("no transaction was found for id=%s", id)

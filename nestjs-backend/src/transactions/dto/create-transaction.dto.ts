@@ -21,14 +21,14 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   pix_key_key_from: string;
 
-  @IsIn(['cpf', 'email'])
+  @IsIn([PixKeyKind.cpf, PixKeyKind.email])
   @IsString()
   @IsNotEmpty()
   pix_key_kind_from: PixKeyKind;
 
   @IsString()
   @IsOptional()
-  description: string = null;
+  description: string | null = null;
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.1)

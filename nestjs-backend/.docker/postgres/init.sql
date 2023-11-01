@@ -1,0 +1,3 @@
+CREATE DATABASE nest_bank_001;
+CREATE DATABASE nest_bank_002;
+

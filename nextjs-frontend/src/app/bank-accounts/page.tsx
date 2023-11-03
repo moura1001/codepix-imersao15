@@ -1,7 +1,14 @@
 import { BankAccount } from '../../models';
+import { CardAction } from '../../components/CardAction';
+import { Typography } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 export async function getBankAccounts(): Promise<BankAccount[]> {
-  const response = await fetch('http://localhost:3000/bank-accounts');
+  const response = await fetch('http://localhost:3000/bank-accounts', {
+    next: {
+      revalidate: 20,
+    },
+  });
   return response.json();
 }
 
@@ -9,14 +16,21 @@ export default async function HomePage() {
   const bankAccounts = await getBankAccounts();
   return (
     <div>
-      <h1>Home Page</h1>
-      <ul>
+      <Typography variant="h4">Contas bancárias</Typography>
+      <Grid2 container spacing={2} mt={1}>
         {bankAccounts.map((bankAccount) => (
-          <li key={bankAccount.account_number}>
-            {bankAccount.owner_name} - {bankAccount.balance}
-          </li>
+          <Grid2 key={bankAccount.account_number} xs={12} sm={6} md={4}>
+            <CardAction>
+              <Typography variant="h5" component="div">
+                {bankAccount.owner_name}
+              </Typography>
+              <Typography component="span">
+                Conta: {bankAccount.account_number}
+              </Typography>
+            </CardAction>
+          </Grid2>
         ))}
-      </ul>
+      </Grid2>
     </div>
   );
 }

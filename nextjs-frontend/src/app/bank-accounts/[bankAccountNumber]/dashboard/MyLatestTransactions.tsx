@@ -1,5 +1,5 @@
 'use client';
-import { DataGrid, GridColDef } from '../../../../components/mui';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { red, green } from '@mui/material/colors';
 import { Transaction } from '../../../../models';
 
@@ -31,8 +31,8 @@ const columns: GridColDef[] = [
 ];
 
 export type MyLatestTransactionsProps = {
-	transactions: Transaction[]
-}
+  transactions: Transaction[];
+};
 
 export function MyLatestTransactions(props: MyLatestTransactionsProps) {
   return <DataGrid rows={props.transactions} columns={columns} />;

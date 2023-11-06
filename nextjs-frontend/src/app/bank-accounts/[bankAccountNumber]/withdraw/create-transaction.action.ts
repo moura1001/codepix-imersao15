@@ -14,7 +14,7 @@ export async function createTransactionAction(
   const description = formData.get('description');
 
   const response = await fetch(
-    `http://localhost:3000/bank-accounts/${bankAccountNumber}/transactions`,
+    `${process.env.NEXT_PUBLIC_NEST_API_URL}/bank-accounts/${bankAccountNumber}/transactions`,
     {
       method: 'POST',
       body: JSON.stringify({

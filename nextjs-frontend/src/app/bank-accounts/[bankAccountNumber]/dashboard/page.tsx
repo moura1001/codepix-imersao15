@@ -10,7 +10,7 @@ export async function getTransactions(
   bankAccountNumber: string,
 ): Promise<Transaction[]> {
   const response = await fetch(
-    `http://localhost:3000/bank-accounts/${bankAccountNumber}/transactions`,
+    `${process.env.NEXT_PUBLIC_NEST_API_URL}/bank-accounts/${bankAccountNumber}/transactions`,
     {
       next: {
         revalidate: 20,

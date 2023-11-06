@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import ThemeRegistry from '@/components/ThemeRegistry/ThemeRegistry';
+import { Navbar } from '../components/Navbar/Navbar';
 
 export const metadata = {
   title: 'Codepix title',
@@ -8,11 +9,12 @@ export const metadata = {
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   //console.dir(props, {depth: 10});
-  
+
   return (
     <html lang="en">
       <body>
         <ThemeRegistry>
+          <Navbar />
           <Box
             component="main"
             sx={{

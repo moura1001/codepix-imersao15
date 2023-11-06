@@ -6,6 +6,7 @@ import { MyCard } from './MyCard';
 
 export type CardActionProps = {
   sx?: SxProps<Theme>;
+  action?: (formData: FormData) => void;
 };
 
 export function CardAction(props: PropsWithChildren<CardActionProps>) {
@@ -22,9 +23,11 @@ export function CardAction(props: PropsWithChildren<CardActionProps>) {
           alignItems={'center'}
           justifyContent={'flex-end'}
         >
-          <Button color="primary">
-            <ArrowForwardIos />
-          </Button>
+          <form action={props.action}>
+            <Button color="primary" type="submit">
+              <ArrowForwardIos />
+            </Button>
+          </form>
         </Grid2>
       </Grid2>
     </MyCard>

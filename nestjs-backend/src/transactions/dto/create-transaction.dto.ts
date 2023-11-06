@@ -31,7 +31,7 @@ export class CreateTransactionDto {
   description: string | null = null;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0.1)
+  @Min(1)
   @IsNotEmpty()
   amount: number;
 }

@@ -8,6 +8,7 @@ export async function getBankAccount(
     {
       next: {
         revalidate: 20,
+        tags: [`bank-accounts-${bankAccountNumber}`],
       },
     },
   );

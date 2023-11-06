@@ -4,6 +4,7 @@ import { CurrentBalance } from '../../../../components/CurrentBalance';
 import { CardAction } from '@/components/CardAction';
 import { MyLatestTransactions } from './MyLatestTransactions';
 import { Transaction } from '../../../../models';
+import Link from 'next/link';
 
 export async function getTransactions(
   bankAccountNumber: string,
@@ -13,6 +14,7 @@ export async function getTransactions(
     {
       next: {
         revalidate: 20,
+        tags: [`bank-accounts-${bankAccountNumber}`],
       },
     },
   );
@@ -35,18 +37,28 @@ export default async function BankAccountDashboardPage({
       </Grid2>
       <Grid2 container xs={12} lg={6} spacing={1}>
         <Grid2 xs={6}>
-          <CardAction sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography component="span" color={'primary'}>
-              Transferência
-            </Typography>
-          </CardAction>
+          <Link
+            href={`/bank-accounts/${params.bankAccountNumber}/withdraw`}
+            style={{ textDecoration: 'none' }}
+          >
+            <CardAction sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography component="span" color={'primary'}>
+                Transferência
+              </Typography>
+            </CardAction>
+          </Link>
         </Grid2>
         <Grid2 xs={6}>
-          <CardAction sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography component="span" color={'primary'}>
-              Nova chave pix
-            </Typography>
-          </CardAction>
+          <Link
+            href={`/bank-accounts/${params.bankAccountNumber}/pix`}
+            style={{ textDecoration: 'none' }}
+          >
+            <CardAction sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography component="span" color={'primary'}>
+                Nova chave pix
+              </Typography>
+            </CardAction>
+          </Link>
         </Grid2>
       </Grid2>
       <Grid2 xs={12}>
